@@ -1,6 +1,6 @@
 # StartStreams
 ###
-POST http://[WOWZA_HOST]:9080/[APP_NAME]/startStreams</br>
+    POST http://[WOWZA_HOST]:9080/[APP_NAME]/startStreams</br>
 Request date:
 ###
     [
@@ -21,7 +21,7 @@ or
 
 # StopStreams
 ###
-POST http://[WOWZA_HOST]:9080/[APP_NAME]/stopStreams</br>
+    POST http://[WOWZA_HOST]:9080/[APP_NAME]/stopStreams</br>
 Request date:
 ###
     [
@@ -42,7 +42,7 @@ or
 
 # StreamStatus
 ###
-POST http://[WOWZA_HOST]:9080/[APP_NAME]/streamStatus</br>
+    POST http://[WOWZA_HOST]:9080/[APP_NAME]/streamStatus</br>
 Request date:
 ###
     {
