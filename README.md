@@ -1,5 +1,6 @@
-# StartStream
-POST http://[WOWZA_HOST]:9080/[APP_NAME]/startStream</br>
+# StartStreams
+###
+POST http://[WOWZA_HOST]:9080/[APP_NAME]/startStreams</br>
 Request date:
 ###
     [
@@ -18,8 +19,9 @@ or
 ###
     {"success":false, "message":"","data":{"bcad28804da8_01":"errmsg","bcad28804da8_02":\"errmsg\"}}
 
-# StopStream
-POST http://[WOWZA_HOST]:9080/[APP_NAME]/stopStream</br>
+# StopStreams
+###
+POST http://[WOWZA_HOST]:9080/[APP_NAME]/stopStreams</br>
 Request date:
 ###
     [
@@ -37,3 +39,29 @@ Response data:
 or
 ###
     {"success":false, "message":"","data":{"bcad28804da8_01":"errmsg","bcad28804da8_02":\"errmsg\"}}
+
+# StreamStatus
+###
+POST http://[WOWZA_HOST]:9080/[APP_NAME]/streamStatus</br>
+Request date:
+###
+    {
+            "streamName":"bcad28804da8_01",                                 //(required)
+            "uri":null                                                      //(optional)
+    }
+Response data:
+###
+    {
+        "sourceIp":"{
+            uri : \"rtsp://user:pass@xx.xx.xx.xx:554/cam/realmonitor?channel=2&subtype=0\",
+            rtspStreamAudioTrack : \"false\"
+        }",
+        "isPTZEnabled":false,
+        "applicationInstance":"_definst_",
+        "name":"bcad28804da8_01.stream",
+        "isRecordingSet":false,
+        "isStreamManagerStream":true,
+        "isPublishedToVOD":false,
+        "isConnected":true,
+        "ptzPollingInterval":2000
+    }
