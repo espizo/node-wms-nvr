@@ -1,6 +1,6 @@
 # StartStreams
 ###
-    POST http://[WOWZA_HOST]:9080/[APP_NAME]/startStreams</br>
+    POST http://[WOWZA_HOST]:9080/[APP_NAME]/startStreams
 Request date:
 ###
     [
@@ -21,7 +21,7 @@ or
 
 # StopStreams
 ###
-    POST http://[WOWZA_HOST]:9080/[APP_NAME]/stopStreams</br>
+    POST http://[WOWZA_HOST]:9080/[APP_NAME]/stopStreams
 Request date:
 ###
     [
@@ -42,13 +42,10 @@ or
 
 # StreamStatus
 ###
-    POST http://[WOWZA_HOST]:9080/[APP_NAME]/streamStatus</br>
-Request date:
+    GET http://[WOWZA_HOST]:9080/[APP_NAME]/[STREAM_NAME]/status
+Example:
 ###
-    {
-            "streamName":"bcad28804da8_01",                                 //(required)
-            "uri":null                                                      //(optional)
-    }
+    http://localhost:9080/nvr/bcad28804da8_01/status
 Response data:
 ###
     {
