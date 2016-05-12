@@ -32,6 +32,4 @@ Request date:
     ]
 Response data:
 ###
-    {"success":true, "message":"","data":null}
-or
-    {"success":false, "message":"","data":{"bcad28804da8_01":"errmsg","bcad28804da8_02":\"errmsg\"}}
+    {"success":true, "message":"","data":null}  or   {"success":false, "message":"","data":{"bcad28804da8_01":"errmsg","bcad28804da8_02":\"errmsg\"}}
