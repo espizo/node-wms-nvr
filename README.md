@@ -17,7 +17,16 @@ Response data:
     {"success":true, "message":"","data":null}
 or
 ###
-    {"success":false, "message":"","data":{"bcad28804da8_01":"errmsg","bcad28804da8_02":\"errmsg\"}}
+        {"success":false, "message":"","data":[
+                {
+                    "streamName":"bcad28804da8_01",
+                    "errmsg":"...."
+                },{
+                    "streamName":"bcad28804da8_02",
+                    "errmsg":"...."
+                }
+            ]
+        }
 
 # StopStreams
 ###
@@ -38,7 +47,7 @@ Response data:
     {"success":true, "message":"","data":null}
 or
 ###
-    {"success":false, "message":"","data":{"bcad28804da8_01":"errmsg","bcad28804da8_02":\"errmsg\"}}
+    @See StartStreams Response data
 
 # StreamStatus
 ###
