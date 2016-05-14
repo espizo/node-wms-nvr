@@ -4,7 +4,7 @@
 
 'use strict'
 
-global.mongo_url = 'mongodb://sa:Mongodb2016@localhost:27017/wms';
+global.mongo_url = 'mongodb://sa:Mongodb2016@10.201.253.168:27017/wms';
 
 global.mongo_opt = {
     server: {
