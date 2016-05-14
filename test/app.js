@@ -32,16 +32,20 @@ var streams = [
         uri:"rtsp://admin:admin@218.201.251.99:6554/cam/realmonitor?channel=4&subtype=0"
     },{
         streamName:" 572819b89789e1301e9bf6ab_1",
-        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=1&subtype=0"
+        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=1&subtype=0",
+        transportMode:"tcp"
     },{
         streamName:" 572819b89789e1301e9bf6ab_2",
-        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=2&subtype=0"
+        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=2&subtype=0",
+        transportMode:"tcp"
     },{
         streamName:" 572819b89789e1301e9bf6ab_3",
-        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=3&subtype=0"
+        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=3&subtype=0",
+        transportMode:"tcp"
     },{
         streamName:" 572819b89789e1301e9bf6ab_4",
-        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=4&subtype=0"
+        uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=4&subtype=0",
+        transportMode:"tcp"
     }
 ]
 
