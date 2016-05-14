@@ -1,0 +1,30 @@
+{
+  "name": "node-wms-nvr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./test/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aesirteam/node-wms-nvr.git"
+  },
+  "keywords": [
+    "Wowza",
+    "Hikvision",
+    "Dahua",
+    "Nvr"
+  ],
+  "author": "zhongkui",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aesirteam/node-wms-nvr/issues"
+  },
+  "homepage": "https://github.com/aesirteam/node-wms-nvr#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "mongodb": "^2.1.18",
+    "request": "^2.72.0"
+  }
+}
