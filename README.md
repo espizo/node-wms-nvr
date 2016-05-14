@@ -1,15 +1,18 @@
-# StartStreams
+# PublishStream
 ###
-    POST http://[WOWZA_HOST]:9080/[APP_NAME]/startStreams
+    POST http://[WOWZA_HOST]:9080/[APP_NAME]/publishStream
 Request date:
 ###
     [
         {
-            "streamName":"bcad28804da8_01",                                 //(required)
-            "uri":"rtsp://user:pass@xx.xx.xx.xx/h264/ch33/main/av_stream"   //(required)
+            "streamName":"bcad28804da8_01",                                      //(required)
+            "uri":"rtsp://user:pass@xx.xx.xx.xx:554/h264/ch33/main/av_stream",   //(required)
+            "audioTrack": false,                                                 //(optional default: false)
+            "transportMode": "tcp",                                              //(optional value: udp or tcp)
+            "autoStartup": true                                                  //(optional default: true)
         },{
-            "streamName":"bcad28804da8_02",                                 //(required)
-            "uri":"rtsp://user:pass@xx.xx.xx.xx/h264/ch34/main/av_stream"   //(required)
+            "streamName":"bcad28804da8_02",                                     //(required)
+            "uri":"rtsp://user:pass@xx.xx.xx.xx:554/h264/ch34/main/av_stream"   //(required)
         }
     ]
 Response data:
@@ -19,21 +22,16 @@ or
 ###
     {
         "success":false,
-        "message":"",
-        "data":[
-            {
-                "streamName":"bcad28804da8_01",
-                "errmsg":"...."
-            },{
-                "streamName":"bcad28804da8_02",
-                "errmsg":"...."
-            }
-        ]
+        "message":"request data uri valid error"",
+        "data":{
+            "streamName":"bcad28804da8_02",
+             "uri":"rtsp://user:pass@xx.xx.xx.xx/h264/ch34/main/av_stream"
+        }
     }
 
-# StopStreams
+# ReleaseStream
 ###
-    POST http://[WOWZA_HOST]:9080/[APP_NAME]/stopStreams
+    POST http://[WOWZA_HOST]:9080/[APP_NAME]/releaseStream
 Request date:
 ###
     [
@@ -60,17 +58,11 @@ Example:
     http://localhost:9080/nvr/bcad28804da8_01/status
 Response data:
 ###
-    {
-        "sourceIp":"{
-            uri : \"rtsp://user:pass@xx.xx.xx.xx:554/cam/realmonitor?channel=2&subtype=0\",
-            rtspStreamAudioTrack : \"false\"
-        }",
-        "isPTZEnabled":false,
-        "applicationInstance":"_definst_",
-        "name":"bcad28804da8_01.stream",
-        "isRecordingSet":false,
-        "isStreamManagerStream":true,
-        "isPublishedToVOD":false,
-        "isConnected":true,
-        "ptzPollingInterval":2000
-    }
+        {
+            "success":true,
+            "message":"",
+            "data": {
+                "streamName":"bcad28804da8_01",
+                "isConnected":true
+            }
+        }
