@@ -1,0 +1,35 @@
+#/bin/bash
+#chkconfig: 2345 80 90
+#description: auto_run
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+APP='node /node-wms-nvr/index.js'
+
+start() {
+    su - root -c "nohup $APP>/dev/null 2>&1 &"
+}
+
+stop() {
+    ps -ef | grep "$APP" | grep -v grep | awk '{print $2}' | while read pid
+      do
+        kill -9 $pid
+      done
+}
+
+case "$1" in
+start)
+start
+;;
+
+stop)
+stop
+;;
+
+restart)
+stop
+start
+;;
+
+esac
