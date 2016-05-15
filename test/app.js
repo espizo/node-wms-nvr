@@ -30,7 +30,7 @@ var streams = [
     },{
         streamName:"572b1d3a984765081ff48218_4",
         uri:"rtsp://admin:admin@218.201.251.99:6554/cam/realmonitor?channel=4&subtype=0"
-    }/*,{
+    },{
         streamName:" 572819b89789e1301e9bf6ab_1",
         uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=1&subtype=0"
     },{
@@ -42,7 +42,7 @@ var streams = [
     },{
         streamName:" 572819b89789e1301e9bf6ab_4",
         uri:"rtsp://admin:admin123@218.201.243.247:554/cam/realmonitor?channel=4&subtype=0"
-    }*/
+    }
 ]
 
 if (process.argv[2] == 'publishStream' || process.argv[2] == 'releaseStream') {
