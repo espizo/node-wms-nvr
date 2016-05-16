@@ -195,9 +195,9 @@ var removeStreamTarget = function (app, ch, cb) {
                 var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
                 request.delete(uri, http_header, function (err, res, body) {
                     if (err)
-                        cb(err)
+                        done(err)
                     else
-                        cb(null)
+                        done(null)
                 })
             }
         },function(err, result){
