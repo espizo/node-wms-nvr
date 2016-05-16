@@ -161,85 +161,58 @@ var resetStream = function (app, ch, cb) {
     })
 }
 
-var createStreamTarget = function (app, ch, cb) {
-    var len = edges.length;
-    edges.forEach(function (target) {
-        async.series({
-            s1: function(done){
-                var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
-                target.profile = 'rtmp';
-                target.sourceStreamName = util.format('%s.stream', ch.streamName);
-                target.application = app;
-                target.appInstance = '_definst_';
-                target.streamName = ch.streamName;
-
-                request.post(uri, http_header, function (err, res, body) {
-                    if (err)
-                        done(err)
-                    else
-                        done(null)
-                }).body = JSON.stringify(target)
-            }
-        },function(err, result){
-            if(--len == 0)
-                cb(null)
-        })
-    })
-}
-
-var removeStreamTarget = function (app, ch, cb) {
-    var len = edges.length;
-    edges.forEach(function (target) {
-        async.series({
-            s1: function(done){
-                var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
-                request.delete(uri, http_header, function (err, res, body) {
-                    if (err)
-                        done(err)
-                    else
-                        done(null)
-                })
-            }
-        },function(err, result){
-            if(--len == 0)
-                cb(null)
-        })
-    })
-}
-
-var addStartupStream = function (app, ch, cb) {
-    request.post(restApi.startupstreams, http_header, function (err, res, body) {
-        if (err)
-            cb(err)
-        else
-            cb(null)
-    }).body = JSON.stringify({
-        "serverName": "_defaultServer_",
-        "appName": app,
-        "instance": "_definst_",
-        "streamName": ch.streamName.concat('.stream'),
-        "mediaCasterType": "rtp"
-    })
-}
-
-var removeStartupStream = function (app, ch, cb) {
-    var uri = util.format(restApi.startupstreams.concat('/applications/%s/instances/_definst_/streams/%s'), app, ch.streamName.concat('.stream'));
-    request.delete(uri, http_header, function (err, res, body) {
-        if (err)
-            cb(err)
-        else
-            cb(null)
-    })
-}
-
 function WOWZA() {
     EventEmitter.call(this);
+
+    this.on('createStreamTarget', function(uri, target, cb){
+        request.post(uri, http_header, function (err, res, body) {
+            if (err)
+                cb(err)
+            else
+                cb(null)
+        }).body = JSON.stringify(target)
+    })
+
+    this.on('removeStreamTarget', function(uri, target, cb){
+        request.delete(uri, http_header, function (err, res, body) {
+            if (err)
+                cb(err)
+            else
+                cb(null)
+        })
+    })
+
+    this.on('addStartupStream', function(app, ch, cb){
+        request.post(restApi.startupstreams, http_header, function (err, res, body) {
+            if (err)
+                cb(err)
+            else
+                cb(null)
+        }).body = JSON.stringify({
+            "serverName": "_defaultServer_",
+            "appName": app,
+            "instance": "_definst_",
+            "streamName": ch.streamName.concat('.stream'),
+            "mediaCasterType": "rtp"
+        })
+    })
+
+    this.on('removeStartupStream', function(app, ch, cb){
+        var uri = util.format(restApi.startupstreams.concat('/applications/%s/instances/_definst_/streams/%s'), app, ch.streamName.concat('.stream'));
+        request.delete(uri, http_header, function (err, res, body) {
+            if (err)
+                cb(err)
+            else
+                cb(null)
+        })
+    })
 }
 
 util.inherits(WOWZA, EventEmitter);
 module.exports = new WOWZA();
 
 WOWZA.prototype.addStreams = function (app, streams, cb) {
+    var self = this;
     var len = streams.length, _errors = [];
     streams.forEach(function(ch) {
         async.series({
@@ -250,10 +223,17 @@ WOWZA.prototype.addStreams = function (app, streams, cb) {
                 connectStream(app, ch, done)
             },
             s3: function(done) {
-                createStreamTarget(app, ch, done)
-            },
-            s4: function(done) {
-                addStartupStream(app, ch, done)
+                edges.forEach(function(target){
+                    var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
+                    target.profile = 'rtmp';
+                    target.sourceStreamName = util.format('%s.stream', ch.streamName);
+                    target.application = app;
+                    target.appInstance = '_definst_';
+                    target.streamName = ch.streamName;
+                    self.emit('createStreamTarget', uri, target, function(err){})
+                })
+                self.emit('addStartupStream', app, ch, function(err){})
+                done(null)
             }
         },function(err, result){
             if(err)
@@ -266,6 +246,7 @@ WOWZA.prototype.addStreams = function (app, streams, cb) {
 }
 
 WOWZA.prototype.removeStreams = function (app, streams, cb) {
+    var self = this;
     var len = streams.length, _errors = [];
     streams.forEach(function (ch) {
         async.series({
@@ -276,10 +257,12 @@ WOWZA.prototype.removeStreams = function (app, streams, cb) {
                 removeStreamfile(app, ch, done)
             },
             s3: function(done) {
-                removeStreamTarget(app, ch, done)
-            },
-            s4: function(done) {
-                removeStartupStream(app, ch, done)
+                edges.forEach(function(target){
+                    var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
+                    self.emit('removeStreamTarget',uri, target, function(err){})
+                })
+                self.emit('removeStartupStream', app, ch, function(err){})
+                done(null)
             }
         },function(err, result){
             if(err)
