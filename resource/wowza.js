@@ -162,30 +162,46 @@ var resetStream = function (app, ch, cb) {
 }
 
 var createStreamTarget = function (app, ch, cb) {
+    var len = edges.length;
     edges.forEach(function (target) {
-        var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
-        target.profile = 'rtmp';
-        target.sourceStreamName = util.format('%s.stream', ch.streamName);
-        target.application = app;
-        target.appInstance = '_definst_';
-        target.streamName = ch.streamName;
+        async.series({
+            s1: function(done){
+                var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
+                target.profile = 'rtmp';
+                target.sourceStreamName = util.format('%s.stream', ch.streamName);
+                target.application = app;
+                target.appInstance = '_definst_';
+                target.streamName = ch.streamName;
 
-        request.post(uri, http_header, function (err, res, body) {
-            if (err)
-                cb(err)
-            else
+                request.post(uri, http_header, function (err, res, body) {
+                    if (err)
+                        done(err)
+                    else
+                        deno(null)
+                }).body = JSON.stringify(target)
+            }
+        },function(err, result){
+            if(--len == 0)
                 cb(null)
-        }).body = JSON.stringify(target)
+        })
     })
 }
 
 var removeStreamTarget = function (app, ch, cb) {
+    var len = edges.length;
     edges.forEach(function (target) {
-        var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
-        request.delete(uri, http_header, function (err, res, body) {
-            if (err)
-                cb(err)
-            else
+        async.series({
+            s1: function(done){
+                var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
+                request.delete(uri, http_header, function (err, res, body) {
+                    if (err)
+                        cb(err)
+                    else
+                        cb(null)
+                })
+            }
+        },function(err, result){
+            if(--len == 0)
                 cb(null)
         })
     })
