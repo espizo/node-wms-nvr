@@ -45,20 +45,9 @@ var streams = [
     }
 ]
 
-if (process.argv[2] == 'publishStream' || process.argv[2] == 'releaseStream') {
-    request.post('http://localhost:9090/nvr/'.concat(process.argv[2]), http_header, function (err, res, body) {
-        if (err)
-            console.error(err)
-        else
-            console.log(body);
-    }).body = JSON.stringify(streams);
-} else if (process.argv[2] == 'status') {
-    streams.forEach(function(ch){
-        request.get('http://localhost:9090/nvr/'.concat(ch.streamName,'/status'), http_header, function(err, res, body){
-            if (err)
-                console.error(err)
-            else
-                console.log(body);
-        })
-    })
-}
+request.post('http://localhost:9090/nvr/'.concat(process.argv[2]), http_header, function (err, res, body) {
+    if (err)
+        console.error(err)
+    else
+        console.log(body);
+}).body = JSON.stringify(streams);

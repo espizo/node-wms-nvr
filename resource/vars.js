@@ -26,3 +26,10 @@ global.http_header = {
         "Content-Type": "application/json"
     }
 }
+
+global.restApi = {
+    streamfiles: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/applications/%s/streamfiles',
+    incomingstreams: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/applications/%s/instances/_definst_/incomingstreams/%s',
+    pushpublish: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/applications/%s/pushpublish/mapentries/%s_%s',
+    startupstreams: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/startupstreams'
+}

@@ -1,15 +1,14 @@
 # PublishStream
 ###
     POST http://<WOWZA_HOST>:9090/<APP_NAME>/publishStream
-Request date:
+Request data:
 ###
     [
         {
             "streamName":"bcad28804da8_01",                                      //(required)
-            "uri":"rtsp://user:pass@xx.xx.xx.xx:554/h264/ch33/main/av_stream",   //(required)
+            "uri":"rtsp://user:pass@xx.xx.xx.xx:554/h264/ch33/main/av_stream",   //(required only PublishStream, other optional)
             "audioTrack": false,                                                 //(optional default: false)
-            "transportMode": "tcp",                                              //(optional value: udp or tcp)
-            "autoStartup": true                                                  //(optional default: true)
+            "transportMode": "tcp"                                               //(optional value: udp or tcp)
         },{
             "streamName":"bcad28804da8_02",                                      //(required)
             "uri":"rtsp://user:pass@xx.xx.xx.xx:554/h264/ch34/main/av_stream"    //(required)
@@ -23,10 +22,17 @@ or
     {
         "success":false,
         "message":"request data uri valid error"",
-        "data":{
-            "streamName":"bcad28804da8_02",
-             "uri":"rtsp://user:pass@xx.xx.xx.xx/h264/ch34/main/av_stream"
-        }
+        "data":[
+            {
+                "streamName":null,
+                "uri":"rtsp://user:pass@xx.xx.xx.xx:554/h264/ch35/main/av_stream",
+                "errmsg":"streamName not exists"
+            },{
+                "streamName":"571d8a57859a25800c690169_4",
+                "uri":"rtsp://user:pass@xx.xx.xx.xx/h264/ch36/main/av_stream",
+                "errmsg":"uri valid error"
+            }
+        ]
     }
 
 # ReleaseStream
@@ -34,35 +40,28 @@ or
     POST http://<WOWZA_HOST>:9090/<APP_NAME>/releaseStream
 Request date:
 ###
-    [
-        {
-            "streamName":"bcad28804da8_01",                                     //(required)
-            "uri":null                                                          //(optional)
-        },{
-            "streamName":"bcad28804da8_02",                                     //(required)
-            "uri":null                                                          //(optional)
-        }
-    ]
+    @See PublishStream Request data
 Response data:
-###
-    {"success":true, "message":"","data":null}
-or
-###
-    @See StartStreams Response data
+    @See PublishStream Response data
 
 # StreamStatus
 ###
-    GET http://<WOWZA_HOST>:9090/<APP_NAME>/<STREAM_NAME>/status
-Example:
+    POST http://<WOWZA_HOST>:9090/<APP_NAME>/streamStatus
+Request date:
 ###
-    http://localhost:9090/nvr/bcad28804da8_01/status
+    @See PublishStream Request data
 Response data:
 ###
     {
         "success":true,
         "message":"",
-        "data": {
-            "streamName":"bcad28804da8_01",
-            "isConnected":true
-        }
+        "data":[
+            {
+                "streamName":"572b1d3a984765081ff48218_2",
+                "isConnected":true
+            },{
+                "streamName":"571d8a57859a25800c690169_2",
+                "isConnected":false
+            }
+        ]
     }

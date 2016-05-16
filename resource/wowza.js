@@ -5,17 +5,9 @@
 'use strict'
 
 var request = require('request'),
-    util = require('util'),
     EventEmitter = require('events').EventEmitter,
-    linux = require('os').platform() === 'linux',
-    version = '1461141426000';
-
-var restApi = {
-    streamfiles: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/applications/%s/streamfiles',
-    incomingstreams: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/applications/%s/instances/_definst_/incomingstreams/%s',
-    pushpublish: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/applications/%s/pushpublish/mapentries',
-    startupstreams: 'http://localhost:8087/v2/servers/_defaultServer_/vhosts/_defaultVHost_/startupstreams'
-}
+    util = require('util'),
+    async = require('async');
 
 var edges = [{
     "host": "10.201.253.136",
@@ -31,31 +23,31 @@ var edges = [{
 
 var createStreamfile = function (app, ch, cb) {
     if (!ch.streamName)
-        return cb(new Error('request data streamName not exists'), ch);
+        return cb(new Error('streamName not exists'));
 
     if (!ch.uri)
-        return cb(new Error('request data uri not exists'), ch)
-    else if (!/^rtsp:\/\/(([A-Za-z0-9]+:[A-Za-z0-9]+@)?([0-9]?\d)+\.([0-9]?\d)+\.([0-9]?\d)+\.([0-9]?\d)+:([0-9]?\d)+\/+?)/.test(ch.uri))
-        return cb(new Error('request data uri valid error'), ch);
+        return cb(new Error('uri not exists'))
+    else if (!/^rtsp:\/\/([A-Za-z0-9]+:[A-Za-z0-9]+@)?([0-9]?\d)+\.([0-9]?\d)+\.([0-9]?\d)+\.([0-9]?\d)+:([0-9]?\d)+(\/.*)?$/.test(ch.uri))
+        return cb(new Error('uri valid error'));
 
     var uri = util.format(restApi.streamfiles, app);
     var querystring = util.format("connectAppName=%s&appInstance=_definst_&mediaCasterType=rtp", app);
     request.post(uri.concat('/', ch.streamName), http_header, function (err, res, body) {
         if (err)
-            cb(err, ch)
+            cb(err)
         else {
             try {
                 if (JSON.parse(body).success)
                     updateStreamfile(app, ch, cb)
                 else
-                    removeStreamfile(app, ch, function (err, ch) {
+                    removeStreamfile(app, ch, function (err) {
                         if (err)
-                            cb(err, ch)
+                            cb(err)
                         else
                             createStreamfile(app, ch, cb)
                     })
             } catch (ex) {
-                cb(ex, ch)
+                cb(ex)
             }
         }
     }).body = JSON.stringify({
@@ -72,9 +64,9 @@ var removeStreamfile = function (app, ch, cb) {
     var uri = util.format(restApi.streamfiles.concat('/%s'), app, ch.streamName);
     request.delete(uri, http_header, function (err, res, body) {
         if (err)
-            cb(err, ch)
+            cb(err)
         else
-            cb(null, ch)
+            cb(null)
     })
 }
 
@@ -124,7 +116,6 @@ var updateStreamfile = function (app, ch, cb) {
         else
             cb(null, ch)
     }).body = JSON.stringify({
-        "version": version,
         "advancedSettings": settings
     })
 }
@@ -133,27 +124,30 @@ var connectStream = function (app, ch, cb) {
     var uri = util.format(restApi.streamfiles.concat('/%s/actions/connect?connectAppName=%s&appInstance=_definst_&mediaCasterType=rtp'), app, ch.streamName, app);
     request.put(uri, http_header, function (err, res, body) {
         if (err)
-            cb(err, ch)
+            cb(err)
         else {
             try {
                 if (JSON.parse(body).success)
-                    cb(null, ch)
+                    cb(null)
                 else
                     resetStream(app, ch, cb)
             } catch (ex) {
-                cb(ex, ch)
+                cb(ex)
             }
         }
     })
 }
 
 var disconnectStream = function (app, ch, cb) {
+    if (!ch.streamName)
+        return cb(new Error('streamName not exists'));
+
     var uri = util.format(restApi.incomingstreams.concat('/actions/disconnectStream'), app, ch.streamName.concat('.stream'));
     request.put(uri, http_header, function (err, res, body) {
         if (err)
-            cb(err, ch)
+            cb(err)
         else
-            cb(null, ch)
+            cb(null)
     })
 }
 
@@ -161,39 +155,38 @@ var resetStream = function (app, ch, cb) {
     var uri = util.format(restApi.incomingstreams.concat('/actions/resetStream'), app, ch.streamName.concat('.stream'));
     request.put(uri, http_header, function (err, res, body) {
         if (err)
-            cb(err, ch)
+            cb(err)
         else
-            cb(null, ch)
+            cb(null)
     })
 }
 
 var createStreamTarget = function (app, ch, cb) {
-    var uri = util.format(restApi.pushpublish, app);
     edges.forEach(function (target) {
+        var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
         target.profile = 'rtmp';
         target.sourceStreamName = util.format('%s.stream', ch.streamName);
-        target.entryName = util.format('%s_%s', ch.streamName, target.host);
         target.application = app;
         target.appInstance = '_definst_';
         target.streamName = ch.streamName;
 
         request.post(uri, http_header, function (err, res, body) {
             if (err)
-                cb(err, ch)
+                cb(err)
             else
-                cb(null, ch)
+                cb(null)
         }).body = JSON.stringify(target)
     })
 }
 
 var removeStreamTarget = function (app, ch, cb) {
     edges.forEach(function (target) {
-        var uri = util.format(restApi.pushpublish.concat('/%s_%s'), app, ch.streamName, target.host);
+        var uri = util.format(restApi.pushpublish, app, ch.streamName, target.host);
         request.delete(uri, http_header, function (err, res, body) {
             if (err)
-                cb(err, ch)
+                cb(err)
             else
-                cb(null, ch)
+                cb(null)
         })
     })
 }
@@ -201,11 +194,10 @@ var removeStreamTarget = function (app, ch, cb) {
 var addStartupStream = function (app, ch, cb) {
     request.post(restApi.startupstreams, http_header, function (err, res, body) {
         if (err)
-            cb(err, ch)
+            cb(err)
         else
-            cb(null, ch)
+            cb(null)
     }).body = JSON.stringify({
-        "version": version,
         "serverName": "_defaultServer_",
         "appName": app,
         "instance": "_definst_",
@@ -218,9 +210,9 @@ var removeStartupStream = function (app, ch, cb) {
     var uri = util.format(restApi.startupstreams.concat('/applications/%s/instances/_definst_/streams/%s'), app, ch.streamName.concat('.stream'));
     request.delete(uri, http_header, function (err, res, body) {
         if (err)
-            cb(err, ch)
+            cb(err)
         else
-            cb(null, ch)
+            cb(null)
     })
 }
 
@@ -232,75 +224,80 @@ util.inherits(WOWZA, EventEmitter);
 module.exports = new WOWZA();
 
 WOWZA.prototype.addStreams = function (app, streams, cb) {
-    streams.forEach(function (ch) {
-        createStreamfile(app, ch, function (err, ch) {
-            if (err)
-                cb(err, ch)
-            else
-                connectStream(app, ch, function (err, ch) {
-                    if (err)
-                        cb(err, ch)
-                    else {
-                        createStreamTarget(app, ch, function (err, ch) {
-                            if (err)
-                                cb(err, ch)
-                        })
+    var len = streams.length, _errors = [];
+    streams.forEach(function(ch) {
+        async.series({
+            s1: function(done) {
+                createStreamfile(app, ch, done)
+            },
+            s2: function(done) {
+                connectStream(app, ch, done)
+            },
+            s3: function(done) {
+                createStreamTarget(app, ch, done)
+            },
+            s4: function(done) {
+                addStartupStream(app, ch, done)
+            }
+        },function(err, result){
+            if(err)
+                _errors.push({streamName: ch.streamName || null, uri: ch.uri || null, errmsg: err.message})
 
-                        if (typeof(ch.autoStartup) == 'undefined' || ch.autoStartup) {
-                            addStartupStream(app, ch, function (err, ch) {
-                                if (err)
-                                    cb(err, ch)
-                            })
-                        }
-
-                        cb(null)
-                    }
-                })
+            if (--len === 0)
+                cb(_errors)
         })
     })
 }
 
 WOWZA.prototype.removeStreams = function (app, streams, cb) {
+    var len = streams.length, _errors = [];
     streams.forEach(function (ch) {
-        disconnectStream(app, ch, function (err, ch) {
-            if (err)
-                cb(err, ch)
-            else
-                removeStreamfile(app, ch, function (err, ch) {
-                    if (err)
-                        cb(err, ch)
-                    else {
-                        removeStreamTarget(app, ch, function (err, ch) {
-                            if (err)
-                                cb(err, ch)
-                        })
+        async.series({
+            s1: function(done) {
+                disconnectStream(app, ch, done)
+            },
+            s2: function(done) {
+                removeStreamfile(app, ch, done)
+            },
+            s3: function(done) {
+                removeStreamTarget(app, ch, done)
+            },
+            s4: function(done) {
+                removeStartupStream(app, ch, done)
+            }
+        },function(err, result){
+            if(err)
+                _errors.push({streamName: ch.streamName || null, uri: ch.uri || null, errmsg: err.message})
 
-                        if (typeof(ch.autoStartup) == 'undefined' || ch.autoStartup) {
-                            removeStartupStream(app, ch, function (err, ch) {
-                                if (err)
-                                    cb(err, ch)
-                            })
-                        }
-
-                        cb(null)
-                    }
-                })
+            if (--len == 0)
+                cb(_errors)
         })
     })
 }
 
-WOWZA.prototype.streamStatus = function (app, stream, cb) {
-    var uri = util.format(restApi.incomingstreams, app, stream.concat('.stream'));
-    request.get(uri, http_header, function (err, res, body) {
-        if (err)
-            cb(err)
-        else {
-            if (res.statusCode == 404)
-                cb(null, {streamName: stream, isConnected: false})
-            else {
-                var obj = JSON.parse(body)
-                cb(null, {streamName: obj.name.split('.')[0], isConnected: obj.isConnected})
-            }
-        }
+WOWZA.prototype.streamStatus = function (app, streams, cb) {
+    var len = streams.length, _data=[];
+    streams.forEach(function(ch){
+        if(ch.streamName) {
+            async.series({
+                s1: function(done) {
+                    var uri = util.format(restApi.incomingstreams, app, ch.streamName.concat('.stream'));
+                    request.get(uri, http_header, function (err, res, body) {
+                        if(err)
+                            done(null, {streamName: ch.streamName, isConnected: false})
+                        else {
+                            var obj = JSON.parse(body)
+                            done(null, {streamName: ch.streamName, isConnected: obj.code == 404 ? false : obj.isConnected})
+                        }
+                    })
+                }
+            },function(err, result){
+                if(result)
+                    _data.push(result.s1)
+
+                if (--len == 0)
+                    cb(_data)
+            })
+        } else len--
     })
 }
