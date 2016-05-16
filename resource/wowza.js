@@ -177,7 +177,7 @@ var createStreamTarget = function (app, ch, cb) {
                     if (err)
                         done(err)
                     else
-                        deno(null)
+                        done(null)
                 }).body = JSON.stringify(target)
             }
         },function(err, result){
